@@ -32,7 +32,7 @@ public class PlayerListConfig {
 		try (FileWriter writer = new FileWriter(getConfigPath())) {
 			writer.write(json);
 		} catch (Exception e) {
-			PatPatPlugin.getInstance().getLogger().log(Level.WARNING, "Failed to create player list config!", e);
+			PatPatPlugin.LOGGER.log(Level.WARNING, "Failed to create player list config!", e);
 		}
 
 		return playerListConfig;
@@ -47,7 +47,7 @@ public class PlayerListConfig {
 		try (FileReader reader = new FileReader(configPath)) {
 			return GSON.fromJson(reader, PlayerListConfig.class);
 		} catch (Exception e) {
-			PatPatPlugin.getInstance().getLogger().log(Level.WARNING, "Failed to read player list config!", e);
+			PatPatPlugin.LOGGER.log(Level.WARNING, "Failed to read player list config!", e);
 		}
 
 		return create();
@@ -62,7 +62,7 @@ public class PlayerListConfig {
 		try (FileWriter writer = new FileWriter(getConfigPath())) {
 			writer.write(json);
 		} catch (Exception e) {
-			PatPatPlugin.getInstance().getLogger().log(Level.WARNING, "Failed to save player list config!", e);
+			PatPatPlugin.LOGGER.log(Level.WARNING, "Failed to save player list config!", e);
 		}
 	}
 }

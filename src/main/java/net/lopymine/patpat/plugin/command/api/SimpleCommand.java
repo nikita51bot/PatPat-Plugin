@@ -5,6 +5,8 @@ import org.bukkit.command.*;
 import net.lopymine.patpat.plugin.command.PatPatCommandManager;
 
 import java.util.*;
+
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -14,28 +16,35 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <p>
  * By nikita51
  */
+
 @SuppressWarnings("unused")
 public final class SimpleCommand implements TabExecutor {
 
 	private final String description;
+	private final String msgOnlyForPlayer;
 	private final String msgNoPermission;
 	private final String usage;
 	private final String permission;
 	private final ICommand command;
 	private final Map<String, SimpleCommand> child;
+	private final boolean onlyForPlayer;
 
 	private SimpleCommand(@Nullable ICommand command,
 	                      @Nullable String description,
+	                      boolean onlyForPlayer,
+	                      @Nullable String msgOnlyForPlayer,
 	                      @Nullable String msgNoPermission,
 	                      @Nullable String usage,
 	                      @Nullable String permission,
 	                      @Nullable Map<String, SimpleCommand> child) {
-		this.command         = command;
-		this.usage           = usage;
-		this.permission      = permission;
-		this.description     = description;
+		this.command = command;
+		this.usage = usage;
+		this.permission = permission;
+		this.description = description;
+		this.onlyForPlayer = onlyForPlayer;
+		this.msgOnlyForPlayer = msgOnlyForPlayer;
 		this.msgNoPermission = msgNoPermission;
-		this.child           = Objects.requireNonNullElseGet(child, HashMap::new);
+		this.child = Objects.requireNonNullElseGet(child, HashMap::new);
 	}
 
 	public static Builder builder() {
@@ -59,6 +68,12 @@ public final class SimpleCommand implements TabExecutor {
 	@Override
 	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 		try {
+			if (onlyForPlayer && !(sender instanceof Player)) {
+				if (msgOnlyForPlayer != null) {
+					sender.sendMessage(msgOnlyForPlayer);
+				}
+				return false;
+			}
 			if (permission == null || sender.hasPermission(permission)) {
 				if (args.length == 0) {
 					accept(sender, args);
@@ -127,6 +142,9 @@ public final class SimpleCommand implements TabExecutor {
 
 		@Nullable
 		private String description;
+		private boolean onlyForPlayer = false;
+		@Nullable
+		private String msgOnlyForPlayer;
 		@Nullable
 		private String msgNoPermission;
 		@Nullable
@@ -149,6 +167,27 @@ public final class SimpleCommand implements TabExecutor {
 		 */
 		public Builder description(@Nullable String description) {
 			this.description = description;
+			return this;
+		}
+
+		/**
+		 * Sets this command executes only for player
+		 *
+		 * @return {@link Builder}
+		 */
+		public Builder onlyForPlayer() {
+			this.onlyForPlayer = true;
+			return this;
+		}
+
+		/**
+		 * Sets message which will be sent to user when user is not player
+		 *
+		 * @param msgOnlyForPlayer the message
+		 * @return {@link Builder}
+		 */
+		public Builder msgOnlyForPlayer(@Nullable String msgOnlyForPlayer) {
+			this.msgOnlyForPlayer = msgOnlyForPlayer;
 			return this;
 		}
 
@@ -224,7 +263,7 @@ public final class SimpleCommand implements TabExecutor {
 			if (this.childCommandMap == null || this.childCommandMap.isEmpty()) {
 				checkNotNull(this.command, "An executor is required");
 			}
-			return new SimpleCommand(this.command, this.description, this.msgNoPermission, this.usage, this.permission, this.childCommandMap);
+			return new SimpleCommand(this.command, this.description, this.onlyForPlayer, this.msgOnlyForPlayer, this.msgNoPermission, this.usage, this.permission, this.childCommandMap);
 		}
 	}
 }

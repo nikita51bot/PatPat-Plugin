@@ -8,18 +8,16 @@ import net.lopymine.patpat.plugin.config.*;
 import net.lopymine.patpat.plugin.packet.PatPatPacketManager;
 
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
+@Getter
 public final class PatPatPlugin extends JavaPlugin {
 
 	public static final String MOD_ID = "patpat";
-	@Setter
+	public static final Logger LOGGER = Logger.getLogger(MOD_ID);
+
 	@Getter
 	private static PatPatPlugin instance;
-	@Setter
-	@Getter
-	private PatPatConfig patPatConfig;
-	@Setter
-	@Getter
 	private PlayerListConfig playerListConfig;
 
 	public static String id(String path) {
@@ -31,17 +29,20 @@ public final class PatPatPlugin extends JavaPlugin {
 	}
 
 	@Override
+	@SuppressWarnings("java:S2696") // Plugins system
 	public void onEnable() {
-		PatPatPlugin.setInstance(this);
+		instance = this;
 
-		if (!this.getDataFolder().mkdirs()) {
-			this.getLogger().log(Level.WARNING, "Failed to create data folder for PatPat Plugin!");
+		if (!this.getDataFolder().exists() && !this.getDataFolder().mkdirs()) {
+			LOGGER.log(Level.WARNING, "Failed to create data folder for PatPat Plugin!");
 		}
-		this.setPatPatConfig(PatPatConfig.getInstance());
-		this.setPlayerListConfig(PlayerListConfig.getInstance());
+		PatPatConfig.reload();
+		playerListConfig = PlayerListConfig.getInstance();
 
 		PatPatPacketManager.register();
 		PatPatCommandManager.register();
+
+		LOGGER.info("Plugin started");
 	}
 
 	@Override

@@ -7,6 +7,10 @@ import net.lopymine.patpat.plugin.packet.handler.PatPacketHandler;
 
 public class PatPatPacketManager {
 
+	private PatPatPacketManager() {
+		throw new IllegalStateException("Manager class");
+	}
+
 	public static final String PATPAT_C2S_PACKET_ID = PatPatPlugin.id("pat_entity_c2s_packet");
 	public static final String PATPAT_S2C_PACKET_ID = PatPatPlugin.id("pat_entity_s2c_packet");
 

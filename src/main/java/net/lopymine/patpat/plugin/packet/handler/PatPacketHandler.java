@@ -1,15 +1,23 @@
 package net.lopymine.patpat.plugin.packet.handler;
 
-import com.google.common.io.*;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import lombok.experimental.ExtensionMethod;
-import org.bukkit.entity.*;
-
 import net.lopymine.patpat.plugin.PatPatPlugin;
-import net.lopymine.patpat.plugin.config.options.ListMode;
+import net.lopymine.patpat.plugin.command.ratelimit.RateLimitManager;
+import net.lopymine.patpat.plugin.config.PatPatConfig;
+import net.lopymine.patpat.plugin.config.option.ListMode;
 import net.lopymine.patpat.plugin.extension.ByteArrayDataExtension;
 import net.lopymine.patpat.plugin.packet.PatPatPacketManager;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @ExtensionMethod(ByteArrayDataExtension.class)
@@ -37,7 +45,7 @@ public class PatPacketHandler implements PacketHandler {
 		List<Player> nearbyPlayers = new ArrayList<>(pattedEntity
 				.getNearbyEntities(patVisibilityRadius, patVisibilityRadius, patVisibilityRadius)
 				.stream()
-				.flatMap((entity) -> {
+				.flatMap(entity -> {
 					if (entity instanceof Player player) {
 						return Stream.of(player);
 					}
@@ -62,8 +70,12 @@ public class PatPacketHandler implements PacketHandler {
 	}
 
 	private boolean canHandle(Player sender, PatPatPlugin plugin) {
+		if (!sender.hasPermission(PatPatConfig.getInstance().getRateLimit().getPermissionBypass()) && !RateLimitManager.canPat(sender.getUniqueId())) {
+			return false;
+		}
+
 		Set<UUID> uuids = plugin.getPlayerListConfig().getUuids();
-		ListMode listMode = plugin.getPatPatConfig().getListMode();
+		ListMode listMode = PatPatConfig.getInstance().getListMode();
 
 		return switch (listMode) {
 			case DISABLED -> true;
