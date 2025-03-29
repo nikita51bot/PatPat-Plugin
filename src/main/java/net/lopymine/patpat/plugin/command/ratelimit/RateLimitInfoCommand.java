@@ -40,8 +40,7 @@ public class RateLimitInfoCommand implements ICommand {
 			int availablePats = RateLimitManager.getAvailablePats(player.getUniqueId());
 			String message = "Tokens: %d";
 			if (player.hasPermission(config.getPermissionBypass())) {
-				sender.sendPatPatMessage("Tokens: bypass");
-				return;
+				message = "Tokens: bypass";
 			}
 			sender.sendPatPatMessage(message, availablePats);
 			return;

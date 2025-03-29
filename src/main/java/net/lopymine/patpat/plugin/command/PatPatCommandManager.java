@@ -117,7 +117,7 @@ public class PatPatCommandManager {
 	}
 
 	public static String getPluginMessage(String message) {
-		return "[§lPatPat Plugin§r] " + message;
+		return "[§aPatPat§f] " + message;
 	}
 
 

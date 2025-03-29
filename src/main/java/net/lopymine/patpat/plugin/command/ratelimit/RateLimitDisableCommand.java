@@ -35,7 +35,7 @@ public class RateLimitDisableCommand implements ICommand {
 
 	@Override
 	public String getPermissionKey() {
-		return PatPatPlugin.permission("ratelimit.disable");
+		return PatPatPlugin.permission("ratelimit.toggle");
 	}
 
 	@Override
