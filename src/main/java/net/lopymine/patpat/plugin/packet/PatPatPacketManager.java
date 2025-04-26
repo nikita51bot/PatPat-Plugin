@@ -3,7 +3,9 @@ package net.lopymine.patpat.plugin.packet;
 import org.bukkit.plugin.messaging.Messenger;
 
 import net.lopymine.patpat.plugin.PatPatPlugin;
-import net.lopymine.patpat.plugin.packet.handler.PatPacketHandler;
+import net.lopymine.patpat.plugin.packet.handler.*;
+
+import java.util.*;
 
 public class PatPatPacketManager {
 
@@ -11,8 +13,16 @@ public class PatPatPacketManager {
 		throw new IllegalStateException("Manager class");
 	}
 
+	public static final Map<UUID, Boolean> PLAYER_PROTOCOLS = new HashMap<>();
+
 	public static final String PATPAT_C2S_PACKET_ID = PatPatPlugin.id("pat_entity_c2s_packet");
 	public static final String PATPAT_S2C_PACKET_ID = PatPatPlugin.id("pat_entity_s2c_packet");
+
+	public static final String PATPAT_C2S_PACKET_V2_ID = PatPatPlugin.id("pat_entity_c2s_packet_v2");
+	public static final String PATPAT_S2C_PACKET_V2_ID = PatPatPlugin.id("pat_entity_s2c_packet_v2");
+
+	public static final String HELLO_PATPAT_SERVER_C2S_PACKET = PatPatPlugin.id("hello_patpat_server_c2s_packet");
+	public static final String HELLO_PATPAT_PLAYER_S2C_PACKET = PatPatPlugin.id("hello_patpat_player_s2c_packet");
 
 	public static void register() {
 		// Create Main Listener for PatPat Packets
@@ -20,12 +30,20 @@ public class PatPatPacketManager {
 
 		// Listening PatPat Packets Here
 		listener.registerPacket(new PatPacketHandler());
+		listener.registerPacket(new PatPacketHandlerV2());
+		listener.registerPacket(new HelloPacketHandler());
 
 		// Registering Main Listener
 		PatPatPlugin plugin = PatPatPlugin.getInstance();
 		Messenger messenger = plugin.getServer().getMessenger();
 
 		messenger.registerIncomingPluginChannel(plugin, PATPAT_C2S_PACKET_ID, listener);
-		messenger.registerOutgoingPluginChannel(plugin, PATPAT_S2C_PACKET_ID); // Need to allow sending s2c messages
+		messenger.registerOutgoingPluginChannel(plugin, PATPAT_S2C_PACKET_ID);
+
+		messenger.registerIncomingPluginChannel(plugin, PATPAT_C2S_PACKET_V2_ID, listener);
+		messenger.registerOutgoingPluginChannel(plugin, PATPAT_S2C_PACKET_V2_ID);
+
+		messenger.registerIncomingPluginChannel(plugin, HELLO_PATPAT_SERVER_C2S_PACKET, listener);
+		messenger.registerOutgoingPluginChannel(plugin, HELLO_PATPAT_PLAYER_S2C_PACKET);
 	}
 }

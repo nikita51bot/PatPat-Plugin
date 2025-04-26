@@ -5,6 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import net.lopymine.patpat.plugin.command.PatPatCommandManager;
 import net.lopymine.patpat.plugin.config.*;
+import net.lopymine.patpat.plugin.event.PatPatPlayerEventHandler;
 import net.lopymine.patpat.plugin.packet.PatPatPacketManager;
 
 import java.util.logging.Level;
@@ -41,6 +42,7 @@ public final class PatPatPlugin extends JavaPlugin {
 
 		PatPatPacketManager.register();
 		PatPatCommandManager.register();
+		PatPatPlayerEventHandler.register();
 
 		LOGGER.info("Plugin started");
 	}

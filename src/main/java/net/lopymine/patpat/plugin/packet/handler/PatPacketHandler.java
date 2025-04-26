@@ -10,6 +10,7 @@ import net.lopymine.patpat.plugin.config.PatPatConfig;
 import net.lopymine.patpat.plugin.config.option.ListMode;
 import net.lopymine.patpat.plugin.extension.ByteArrayDataExtension;
 import net.lopymine.patpat.plugin.packet.PatPatPacketManager;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -19,9 +20,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.jetbrains.annotations.*;
 
 @ExtensionMethod(ByteArrayDataExtension.class)
-public class PatPacketHandler implements PacketHandler {
+public class PatPacketHandler implements IPacketHandler {
 
 	@Override
 	public void handle(Player sender, ByteArrayDataInput buf) {
@@ -30,8 +32,7 @@ public class PatPacketHandler implements PacketHandler {
 			return;
 		}
 
-		UUID pattedEntityUuid = buf.readUuid();
-		Entity pattedEntity = plugin.getServer().getEntity(pattedEntityUuid);
+		Entity pattedEntity = this.getPattedEntity(plugin, sender, buf);
 		if (!(pattedEntity instanceof LivingEntity livingEntity)) {
 			return;
 		}
@@ -57,16 +58,26 @@ public class PatPacketHandler implements PacketHandler {
 		}
 
 		for (Player player : nearbyPlayers) {
-			if (player.getUniqueId().equals(sender.getUniqueId())) {
+			UUID senderUuid = sender.getUniqueId();
+			if (player.getUniqueId().equals(senderUuid)) {
 				continue;
 			}
 
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeUuid(pattedEntityUuid);
-			out.writeUuid(sender.getUniqueId());
+			byte[] byteArray = this.getOutgoingPacketBytes(pattedEntity, sender, ByteStreams.newDataOutput());
 
-			player.sendPluginMessage(plugin, PatPatPacketManager.PATPAT_S2C_PACKET_ID, out.toByteArray());
+			player.sendPluginMessage(plugin, this.getOutgoingPacketID(senderUuid), byteArray);
 		}
+	}
+
+	protected byte[] getOutgoingPacketBytes(Entity pattedEntity, Entity whoPattedEntity, ByteArrayDataOutput output) {
+		output.writeUuid(pattedEntity.getUniqueId());
+		output.writeUuid(whoPattedEntity.getUniqueId());
+		return output.toByteArray();
+	}
+
+	@Nullable
+	protected Entity getPattedEntity(PatPatPlugin plugin, Player player, ByteArrayDataInput buf) {
+		return plugin.getServer().getEntity(buf.readUuid());
 	}
 
 	private boolean canHandle(Player sender, PatPatPlugin plugin) {
@@ -85,7 +96,14 @@ public class PatPacketHandler implements PacketHandler {
 	}
 
 	@Override
-	public String getPacketID() {
+	public String getIncomingPacketID() {
 		return PatPatPacketManager.PATPAT_C2S_PACKET_ID;
+	}
+
+	public String getOutgoingPacketID(UUID player) {
+		if (Boolean.TRUE.equals(PatPatPacketManager.PLAYER_PROTOCOLS.get(player))) {
+			return PatPatPacketManager.PATPAT_S2C_PACKET_V2_ID;
+		}
+		return PatPatPacketManager.PATPAT_S2C_PACKET_ID;
 	}
 }
