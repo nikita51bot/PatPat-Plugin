@@ -16,11 +16,13 @@ public class PatPatPlayerEventHandler implements Listener {
 	@SuppressWarnings("unused")
 	public void onJoin(PlayerJoinEvent event) {
 		PatPatPacketManager.PLAYER_PROTOCOLS.put(event.getPlayer().getUniqueId(), false);
+		PatPatPlugin.LOGGER.info("Player joined " + event.getPlayer().getName());
 	}
 
 	@SuppressWarnings("unused")
 	public void onQuit(PlayerQuitEvent event) {
 		PatPatPacketManager.PLAYER_PROTOCOLS.remove(event.getPlayer().getUniqueId());
+		PatPatPlugin.LOGGER.info("Player quit " + event.getPlayer().getName());
 	}
 
 }

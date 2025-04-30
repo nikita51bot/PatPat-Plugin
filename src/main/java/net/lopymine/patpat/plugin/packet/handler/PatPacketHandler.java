@@ -15,10 +15,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 import org.jetbrains.annotations.*;
 
@@ -29,19 +26,22 @@ public class PatPacketHandler implements IPacketHandler {
 	public void handle(Player sender, ByteArrayDataInput buf) {
 		PatPatPlugin plugin = PatPatPlugin.getInstance();
 		if (!this.canHandle(sender, plugin)) {
+			PatPatPlugin.LOGGER.info("Can handle");
 			return;
 		}
 
 		Entity pattedEntity = this.getPattedEntity(plugin, sender, buf);
 		if (!(pattedEntity instanceof LivingEntity livingEntity)) {
+			PatPatPlugin.LOGGER.info("not a entity");
 			return;
 		}
 
 		if (livingEntity.isInvisible()) {
+			PatPatPlugin.LOGGER.info("invisible");
 			return;
 		}
 
-		double patVisibilityRadius = plugin.getServer().getViewDistance();
+		double patVisibilityRadius = plugin.getServer().getViewDistance() * 16;
 
 		List<Player> nearbyPlayers = new ArrayList<>(pattedEntity
 				.getNearbyEntities(patVisibilityRadius, patVisibilityRadius, patVisibilityRadius)
@@ -63,8 +63,9 @@ public class PatPacketHandler implements IPacketHandler {
 				continue;
 			}
 
+			PatPatPlugin.LOGGER.info("Sending out packet to %s".formatted(player.getName()));
 			byte[] byteArray = this.getOutgoingPacketBytes(pattedEntity, sender, ByteStreams.newDataOutput());
-
+			PatPatPlugin.LOGGER.info(Arrays.toString(byteArray));
 			player.sendPluginMessage(plugin, this.getOutgoingPacketID(senderUuid), byteArray);
 		}
 	}
@@ -101,7 +102,12 @@ public class PatPacketHandler implements IPacketHandler {
 	}
 
 	public String getOutgoingPacketID(UUID player) {
-		if (Boolean.TRUE.equals(PatPatPacketManager.PLAYER_PROTOCOLS.get(player))) {
+		System.out.println("-----");
+		System.out.println(player);
+		boolean equals = Boolean.TRUE.equals(PatPatPacketManager.PLAYER_PROTOCOLS.get(player));
+		System.out.println(equals);
+		System.out.println("-----");
+		if (equals) {
 			return PatPatPacketManager.PATPAT_S2C_PACKET_V2_ID;
 		}
 		return PatPatPacketManager.PATPAT_S2C_PACKET_ID;

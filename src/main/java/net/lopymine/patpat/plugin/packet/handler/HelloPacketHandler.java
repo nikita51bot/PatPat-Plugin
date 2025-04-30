@@ -10,7 +10,8 @@ public class HelloPacketHandler implements IPacketHandler {
 
 	@Override
 	public void handle(Player sender, ByteArrayDataInput buf) {
-		sender.sendPluginMessage(PatPatPlugin.getInstance(), PatPatPacketManager.HELLO_PATPAT_PLAYER_S2C_PACKET, ByteStreams.newDataOutput().toByteArray());
+		PatPatPlugin.LOGGER.info("[HELLO PACKET] from %s".formatted(sender.getName()));
+		sender.sendPluginMessage(PatPatPlugin.getInstance(), PatPatPacketManager.HELLO_PATPAT_PLAYER_S2C_PACKET, new byte[0]);
 		PatPatPacketManager.PLAYER_PROTOCOLS.put(sender.getUniqueId(), true);
 	}
 
