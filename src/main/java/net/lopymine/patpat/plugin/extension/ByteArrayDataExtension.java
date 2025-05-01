@@ -1,6 +1,7 @@
 package net.lopymine.patpat.plugin.extension;
 
-import com.google.common.io.*;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
 
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;

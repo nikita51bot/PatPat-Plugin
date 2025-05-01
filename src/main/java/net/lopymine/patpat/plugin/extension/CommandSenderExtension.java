@@ -1,7 +1,8 @@
 package net.lopymine.patpat.plugin.extension;
 
-import net.lopymine.patpat.plugin.command.PatPatCommandManager;
 import org.bukkit.command.CommandSender;
+
+import net.lopymine.patpat.plugin.command.PatPatCommandManager;
 
 public class CommandSenderExtension {
 

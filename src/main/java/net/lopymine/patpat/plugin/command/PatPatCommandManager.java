@@ -1,17 +1,16 @@
 package net.lopymine.patpat.plugin.command;
 
-import net.lopymine.patpat.plugin.command.ratelimit.RateLimitInfoCommand;
-import net.lopymine.patpat.plugin.command.ratelimit.RateLimitDisableCommand;
-import net.lopymine.patpat.plugin.command.ratelimit.RateLimitEnableCommand;
-import net.lopymine.patpat.plugin.command.ratelimit.set.IncrementCommand;
-import net.lopymine.patpat.plugin.command.ratelimit.set.IntervalCommand;
-import net.lopymine.patpat.plugin.command.ratelimit.set.LimitCommand;
-import net.lopymine.patpat.plugin.command.reload.ReloadCommand;
-import org.bukkit.command.*;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 
 import net.lopymine.patpat.plugin.PatPatPlugin;
 import net.lopymine.patpat.plugin.command.api.*;
+import net.lopymine.patpat.plugin.command.info.InfoCommand;
 import net.lopymine.patpat.plugin.command.list.*;
+import net.lopymine.patpat.plugin.command.ratelimit.*;
+import net.lopymine.patpat.plugin.command.ratelimit.set.*;
+import net.lopymine.patpat.plugin.command.reload.ReloadCommand;
+import net.lopymine.patpat.plugin.util.StringUtils;
 
 import java.util.Objects;
 
@@ -25,12 +24,14 @@ public class PatPatCommandManager {
 		SimpleCommand listCommand = registerListCommand();
 		SimpleCommand rateLimitCommand = registerRateLimitCommand();
 		SimpleCommand reloadCommand = getSimpleCommand(new ReloadCommand());
+		SimpleCommand infoCommand = getSimpleCommand(new InfoCommand());
 
 		SimpleCommand rootCommand = SimpleCommand.builder()
 				.usage(PatPatCommandManager.getPluginMessage("/patpat (list | ratelimit | reload)"))
 				.child(listCommand, "list")
 				.child(rateLimitCommand, "ratelimit")
 				.child(reloadCommand, "reload")
+				.child(infoCommand, "info")
 				.build();
 
 		PatPatPlugin plugin = PatPatPlugin.getInstance();
@@ -45,7 +46,7 @@ public class PatPatCommandManager {
 		SimpleCommand removeFromListCommand = getSimpleCommand(new ListRemoveCommand());
 
 		return SimpleCommand.builder()
-				.permission(PatPatPlugin.permission("list"))
+				.permission(StringUtils.permission("list"))
 				.usage("/patpat list (set | add | remove)")
 				.child(setModeCommand, "set")
 				.child(addToListCommand, "add")
@@ -63,7 +64,7 @@ public class PatPatCommandManager {
 		SimpleCommand limitCommand = getSimpleCommand(new LimitCommand());
 
 		SimpleCommand setCommand = SimpleCommand.builder()
-				.permission(PatPatPlugin.permission("ratelimit.set"))
+				.permission(StringUtils.permission("ratelimit.set"))
 				.usage("/patpat ratelimit set (increment | interval | limit)")
 				.child(incrementCommand, "increment")
 				.child(intervalCommand, "interval")
@@ -71,7 +72,7 @@ public class PatPatCommandManager {
 				.build();
 
 		return SimpleCommand.builder()
-				.permission(PatPatPlugin.permission("ratelimit"))
+				.permission(StringUtils.permission("ratelimit"))
 				.usage("/patpat ratelimit (enable | disable | set | info)")
 				.child(enableCommand, "enable", "on")
 				.child(disableCommand, "disable", "off")

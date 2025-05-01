@@ -1,23 +1,20 @@
 package net.lopymine.patpat.plugin.packet.handler;
 
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
+import com.google.common.io.*;
 import lombok.experimental.ExtensionMethod;
-import net.lopymine.patpat.plugin.PatPatPlugin;
+import org.bukkit.entity.*;
+
+import net.lopymine.patpat.plugin.*;
 import net.lopymine.patpat.plugin.command.ratelimit.RateLimitManager;
 import net.lopymine.patpat.plugin.config.PatPatConfig;
+import net.lopymine.patpat.plugin.config.PlayerListConfig;
 import net.lopymine.patpat.plugin.config.option.ListMode;
 import net.lopymine.patpat.plugin.extension.ByteArrayDataExtension;
 import net.lopymine.patpat.plugin.packet.PatPatPacketManager;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-
 import java.util.*;
 import java.util.stream.Stream;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.Nullable;
 
 @ExtensionMethod(ByteArrayDataExtension.class)
 public class PatPacketHandler implements IPacketHandler {
@@ -26,22 +23,22 @@ public class PatPacketHandler implements IPacketHandler {
 	public void handle(Player sender, ByteArrayDataInput buf) {
 		PatPatPlugin plugin = PatPatPlugin.getInstance();
 		if (!this.canHandle(sender, plugin)) {
-			PatPatPlugin.LOGGER.info("Can handle");
+			PatLogger.debug("Can handle");
 			return;
 		}
 
 		Entity pattedEntity = this.getPattedEntity(plugin, sender, buf);
 		if (!(pattedEntity instanceof LivingEntity livingEntity)) {
-			PatPatPlugin.LOGGER.info("not a entity");
+			PatLogger.debug("not a entity");
 			return;
 		}
 
 		if (livingEntity.isInvisible()) {
-			PatPatPlugin.LOGGER.info("invisible");
+			PatLogger.debug("invisible");
 			return;
 		}
 
-		double patVisibilityRadius = plugin.getServer().getViewDistance() * 16;
+		double patVisibilityRadius = plugin.getServer().getViewDistance() * 16D;
 
 		List<Player> nearbyPlayers = new ArrayList<>(pattedEntity
 				.getNearbyEntities(patVisibilityRadius, patVisibilityRadius, patVisibilityRadius)
@@ -63,9 +60,9 @@ public class PatPacketHandler implements IPacketHandler {
 				continue;
 			}
 
-			PatPatPlugin.LOGGER.info("Sending out packet to %s".formatted(player.getName()));
+			PatLogger.debug("Sending out packet to %s".formatted(player.getName()));
 			byte[] byteArray = this.getOutgoingPacketBytes(pattedEntity, sender, ByteStreams.newDataOutput());
-			PatPatPlugin.LOGGER.info(Arrays.toString(byteArray));
+			PatLogger.debug(Arrays.toString(byteArray));
 			player.sendPluginMessage(plugin, this.getOutgoingPacketID(senderUuid), byteArray);
 		}
 	}
@@ -86,7 +83,7 @@ public class PatPacketHandler implements IPacketHandler {
 			return false;
 		}
 
-		Set<UUID> uuids = plugin.getPlayerListConfig().getUuids();
+		Set<UUID> uuids = PlayerListConfig.getInstance().getUuids();
 		ListMode listMode = PatPatConfig.getInstance().getListMode();
 
 		return switch (listMode) {
@@ -102,11 +99,11 @@ public class PatPacketHandler implements IPacketHandler {
 	}
 
 	public String getOutgoingPacketID(UUID player) {
-		System.out.println("-----");
-		System.out.println(player);
-		boolean equals = Boolean.TRUE.equals(PatPatPacketManager.PLAYER_PROTOCOLS.get(player));
-		System.out.println(equals);
-		System.out.println("-----");
+		PatLogger.debug("-----");
+		PatLogger.debug(String.valueOf(player));
+		boolean equals = Boolean.TRUE.equals(PatPatPacketManager.PLAYER_PROTOCOLS.get(player).isGreaterOrEqualThan(Version.of("1.2.0")));
+		PatLogger.debug(String.valueOf(equals));
+		PatLogger.debug("-----");
 		if (equals) {
 			return PatPatPacketManager.PATPAT_S2C_PACKET_V2_ID;
 		}

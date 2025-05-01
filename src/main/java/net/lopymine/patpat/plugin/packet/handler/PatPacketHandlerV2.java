@@ -1,13 +1,15 @@
 package net.lopymine.patpat.plugin.packet.handler;
 
-import com.google.common.io.*;
-import org.bukkit.entity.*;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
+import net.lopymine.patpat.plugin.PatLogger;
 import net.lopymine.patpat.plugin.PatPatPlugin;
 import net.lopymine.patpat.plugin.packet.PatPatPacketManager;
 
-import java.io.*;
-import java.util.logging.Level;
+import java.io.IOException;
 import org.jetbrains.annotations.Nullable;
 
 public class PatPacketHandlerV2 extends PatPacketHandler {
@@ -36,7 +38,7 @@ public class PatPacketHandlerV2 extends PatPacketHandler {
 				return entity;
 			}
 		} catch (IOException e) {
-			PatPatPlugin.LOGGER.log(Level.WARNING, "Failed parse entityId from incoming packet from player %s[%s]!".formatted(sender.getName(), sender.getUniqueId()), e);
+			PatLogger.warn("Failed parse entityId from incoming packet from player %s[%s]!".formatted(sender.getName(), sender.getUniqueId()), e);
 		}
 		return null;
 	}
@@ -50,15 +52,15 @@ public class PatPacketHandlerV2 extends PatPacketHandler {
 			b = buf.readByte();
 			i |= (b & 127) << j++ * 7;
 			if (j > 5) {
-				throw new RuntimeException("VarInt too big");
+				throw new IOException("VarInt too big");
 			}
-		} while((b & 128) == 128);
+		} while ((b & 128) == 128);
 
 		return i;
 	}
 
 	private static void writeVarInt(ByteArrayDataOutput output, int value) {
-		while((value & -128) != 0) {
+		while ((value & -128) != 0) {
 			output.writeByte(value & 127 | 128);
 			value >>>= 7;
 		}

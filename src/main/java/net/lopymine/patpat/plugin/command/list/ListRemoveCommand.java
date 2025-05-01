@@ -1,20 +1,18 @@
 package net.lopymine.patpat.plugin.command.list;
 
 import lombok.experimental.ExtensionMethod;
-import net.lopymine.patpat.plugin.PatPatPlugin;
-import net.lopymine.patpat.plugin.command.PatPatCommandManager;
-import net.lopymine.patpat.plugin.command.api.ICommand;
-import net.lopymine.patpat.plugin.config.PlayerListConfig;
-import net.lopymine.patpat.plugin.extension.CommandSenderExtension;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import net.lopymine.patpat.plugin.command.PatPatCommandManager;
+import net.lopymine.patpat.plugin.command.api.ICommand;
+import net.lopymine.patpat.plugin.config.PlayerListConfig;
+import net.lopymine.patpat.plugin.extension.CommandSenderExtension;
+import net.lopymine.patpat.plugin.util.StringUtils;
+
+import java.util.*;
 
 @ExtensionMethod(CommandSenderExtension.class)
 public class ListRemoveCommand implements ICommand {
@@ -58,7 +56,7 @@ public class ListRemoveCommand implements ICommand {
 			return;
 		}
 
-		PlayerListConfig config = PatPatPlugin.getInstance().getPlayerListConfig();
+		PlayerListConfig config = PlayerListConfig.getInstance();
 		Set<UUID> uuids = config.getUuids();
 		String name = offlinePlayer.getName();
 		if (name == null) {
@@ -74,7 +72,7 @@ public class ListRemoveCommand implements ICommand {
 
 	@Override
 	public String getPermissionKey() {
-		return PatPatPlugin.permission("list.remove");
+		return StringUtils.permission("list.remove");
 	}
 
 	@Override

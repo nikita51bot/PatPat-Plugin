@@ -1,20 +1,22 @@
 package net.lopymine.patpat.plugin.command.ratelimit;
 
 import lombok.experimental.ExtensionMethod;
-import net.lopymine.patpat.plugin.PatPatPlugin;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
 import net.lopymine.patpat.plugin.command.api.ICommand;
 import net.lopymine.patpat.plugin.config.PatPatConfig;
 import net.lopymine.patpat.plugin.config.RateLimitConfig;
 import net.lopymine.patpat.plugin.extension.CommandSenderExtension;
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import net.lopymine.patpat.plugin.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
 
 @ExtensionMethod(CommandSenderExtension.class)
 public class RateLimitInfoCommand implements ICommand {
+
 	@Override
 	public List<String> getSuggestions(CommandSender sender, String[] strings) {
 		if (strings.length == 1) {
@@ -55,7 +57,7 @@ public class RateLimitInfoCommand implements ICommand {
 
 	@Override
 	public String getPermissionKey() {
-		return PatPatPlugin.permission("ratelimit.info");
+		return StringUtils.permission("ratelimit.info");
 	}
 
 	@Override

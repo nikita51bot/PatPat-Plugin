@@ -1,13 +1,13 @@
 package net.lopymine.patpat.plugin.command.api;
 
 import org.bukkit.command.*;
+import org.bukkit.entity.Player;
 
 import net.lopymine.patpat.plugin.command.PatPatCommandManager;
 
 import java.util.*;
-
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -37,14 +37,14 @@ public final class SimpleCommand implements TabExecutor {
 	                      @Nullable String usage,
 	                      @Nullable String permission,
 	                      @Nullable Map<String, SimpleCommand> child) {
-		this.command = command;
-		this.usage = usage;
-		this.permission = permission;
-		this.description = description;
-		this.onlyForPlayer = onlyForPlayer;
+		this.command          = command;
+		this.usage            = usage;
+		this.permission       = permission;
+		this.description      = description;
+		this.onlyForPlayer    = onlyForPlayer;
 		this.msgOnlyForPlayer = msgOnlyForPlayer;
-		this.msgNoPermission = msgNoPermission;
-		this.child = Objects.requireNonNullElseGet(child, HashMap::new);
+		this.msgNoPermission  = msgNoPermission;
+		this.child            = Objects.requireNonNullElseGet(child, HashMap::new);
 	}
 
 	public static Builder builder() {

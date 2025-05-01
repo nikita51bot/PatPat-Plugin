@@ -1,15 +1,13 @@
 package net.lopymine.patpat.plugin.command.ratelimit;
 
-import net.lopymine.patpat.plugin.PatPatPlugin;
-import net.lopymine.patpat.plugin.config.PatPatConfig;
-import net.lopymine.patpat.plugin.config.RateLimitConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+import net.lopymine.patpat.plugin.PatPatPlugin;
+import net.lopymine.patpat.plugin.config.PatPatConfig;
+import net.lopymine.patpat.plugin.config.RateLimitConfig;
+
+import java.util.*;
 
 public class RateLimitManager {
 

@@ -1,12 +1,10 @@
 package net.lopymine.patpat.plugin.command.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import lombok.*;
 
 import java.util.Arrays;
 import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 @AllArgsConstructor

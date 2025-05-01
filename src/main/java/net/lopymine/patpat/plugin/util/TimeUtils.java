@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 public class TimeUtils {
 
-	private TimeUtils(){
+	private TimeUtils() {
 		throw new IllegalStateException("Utility class");
 	}
 

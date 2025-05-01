@@ -1,8 +1,7 @@
 package net.lopymine.patpat.plugin.command.ratelimit;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+
 import net.lopymine.patpat.plugin.util.TimeUtils;
 
 import java.util.regex.Matcher;

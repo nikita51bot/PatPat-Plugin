@@ -1,18 +1,24 @@
 package net.lopymine.patpat.plugin.config;
 
-import com.google.gson.Gson;
 import lombok.Getter;
 
+import net.lopymine.patpat.plugin.PatLogger;
 import net.lopymine.patpat.plugin.PatPatPlugin;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
-import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Getter
 public class PlayerListConfig {
 
-	private static final Gson GSON = new Gson();
+	@Getter
+	private static PlayerListConfig instance;
+
+	private static final String FILENAME = "player-list.txt";
+	private static final File CONFIG_FILE = new File(PatPatPlugin.getInstance().getDataFolder(), FILENAME);
 
 	private final Set<UUID> uuids;
 
@@ -20,49 +26,46 @@ public class PlayerListConfig {
 		this.uuids = new HashSet<>();
 	}
 
-	public static PlayerListConfig getInstance() {
-		return PlayerListConfig.read();
+	private static boolean create() {
+		if (!CONFIG_FILE.exists()) {
+			try {
+				Files.createFile(CONFIG_FILE.toPath());
+			} catch (IOException e) {
+				PatLogger.error("Failed to create %s config file!".formatted(FILENAME), e);
+			}
+		}
+		return CONFIG_FILE.exists();
 	}
 
-	public static PlayerListConfig create() {
-		PlayerListConfig playerListConfig = new PlayerListConfig();
-
-		String json = GSON.toJson(playerListConfig);
-
-		try (FileWriter writer = new FileWriter(getConfigPath())) {
-			writer.write(json);
-		} catch (Exception e) {
-			PatPatPlugin.LOGGER.log(Level.WARNING, "Failed to create player list config!", e);
+	public static void reload() {
+		if (!create()) {
+			PatLogger.error("Failed to reload PlayerListConfig file!");
+			return;
 		}
+		PlayerListConfig config = new PlayerListConfig();
 
-		return playerListConfig;
-	}
-
-	private static PlayerListConfig read() {
-		File configPath = getConfigPath();
-		if (!configPath.exists()) {
-			return create();
+		int lineNumber = 0;
+		String line = null;
+		try (BufferedReader reader = new BufferedReader(new FileReader(CONFIG_FILE))) {
+			line = reader.readLine();
+			while (line != null) {
+				lineNumber++;
+				config.uuids.add(UUID.fromString(line));
+				line = reader.readLine();
+			}
+			instance = config;
+		} catch (IllegalArgumentException e) {
+			PatLogger.error("Error line %d: '%s' is not uuid, file %s", lineNumber, line == null ? "null" : line, FILENAME);
+		} catch (IOException e) {
+			PatLogger.error("Failed to read " + FILENAME, e);
 		}
-
-		try (FileReader reader = new FileReader(configPath)) {
-			return GSON.fromJson(reader, PlayerListConfig.class);
-		} catch (Exception e) {
-			PatPatPlugin.LOGGER.log(Level.WARNING, "Failed to read player list config!", e);
-		}
-
-		return create();
-	}
-
-	private static File getConfigPath() {
-		return new File(PatPatPlugin.getInstance().getDataFolder(), "player-list.json");
 	}
 
 	public void save() {
-		String json = GSON.toJson(this, PlayerListConfig.class);
-		try (FileWriter writer = new FileWriter(getConfigPath())) {
-			writer.write(json);
+		try (FileWriter writer = new FileWriter(CONFIG_FILE, StandardCharsets.UTF_8)) {
+			writer.write(uuids.stream().map(UUID::toString).collect(Collectors.joining("\n")));
 		} catch (Exception e) {
-			PatPatPlugin.LOGGER.log(Level.WARNING, "Failed to save player list config!", e);
+			PatLogger.error("Failed to save " + FILENAME, e);
 		}
 	}
 }

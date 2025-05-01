@@ -1,12 +1,13 @@
 {
-  "_comment": "Documentation: https://github.com/LopyMine/PatPat-Plugin/blob/main/doc/en/config.md",
+	"_comment": "Documentation: https://github.com/LopyMine/PatPat-Plugin/blob/main/doc/en/config.md",
 
-  "listMode": "DISABLED",
-  "rateLimit": {
-    "enabled": false,
-    "tokenLimit": 20,
-    "tokenIncrement":  1,
-    "tokenIncrementInterval": "1sec",
-    "permissionBypass":  "patpat.ratelimit.bypass"
-  }
+	"debug": false,
+	"listMode": "DISABLED",
+	"rateLimit": {
+		"enabled": false,
+		"tokenLimit": 20,
+		"tokenIncrement":  1,
+		"tokenIncrementInterval": "1sec",
+		"permissionBypass":  "patpat.ratelimit.bypass"
+	}
 }

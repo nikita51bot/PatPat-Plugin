@@ -5,16 +5,14 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;
+
+import net.lopymine.patpat.plugin.PatLogger;
 import net.lopymine.patpat.plugin.PatPatPlugin;
 import net.lopymine.patpat.plugin.command.ratelimit.RateLimitManager;
 import net.lopymine.patpat.plugin.config.option.ListMode;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
 
 @Getter
 @Setter
@@ -29,6 +27,7 @@ public class PatPatConfig {
 
 	@SerializedName("_comment")
 	private String comment;
+	private boolean debug;
 
 	private ListMode listMode;
 	private RateLimitConfig rateLimit;
@@ -46,7 +45,7 @@ public class PatPatConfig {
 		try (FileReader reader = new FileReader(configPath)) {
 			instance = GSON.fromJson(reader, PatPatConfig.class);
 		} catch (Exception e) {
-			PatPatPlugin.LOGGER.log(Level.WARNING, "Failed to read player list config!", e);
+			PatLogger.warn("Failed to read player list config!", e);
 		}
 		RateLimitManager.reloadTask();
 	}
@@ -61,7 +60,7 @@ public class PatPatConfig {
 		try (FileWriter writer = new FileWriter(getConfigPath())) {
 			writer.write(json);
 		} catch (Exception e) {
-			PatPatPlugin.LOGGER.log(Level.WARNING, "Failed to save config!", e);
+			PatLogger.warn("Failed to save config!", e);
 		}
 	}
 
@@ -70,7 +69,7 @@ public class PatPatConfig {
 			assert (inputStream != null);
 			return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 		} catch (Exception e) {
-			PatPatPlugin.LOGGER.log(Level.SEVERE, "Failed to open `config.json` in jar", e);
+			PatLogger.error("Failed to open `config.json` in jar", e);
 		}
 		return null;
 	}
@@ -78,14 +77,14 @@ public class PatPatConfig {
 	private static PatPatConfig create() {
 		String json = loadConfigFromJar();
 		if (json == null) {
-			PatPatPlugin.LOGGER.warning("Failed to create config!");
+			PatLogger.warn("Failed to create config!");
 			return null;
 		}
 		PatPatConfig config = GSON.fromJson(json, PatPatConfig.class);
 		try (FileWriter writer = new FileWriter(getConfigPath())) {
 			writer.write(json);
 		} catch (Exception e) {
-			PatPatPlugin.LOGGER.log(Level.WARNING, "Failed to create config!", e);
+			PatLogger.warn("Failed to create config!", e);
 		}
 		return config;
 	}

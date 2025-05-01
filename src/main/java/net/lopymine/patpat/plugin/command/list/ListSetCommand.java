@@ -1,14 +1,14 @@
 package net.lopymine.patpat.plugin.command.list;
 
 import lombok.experimental.ExtensionMethod;
-import net.lopymine.patpat.plugin.extension.CommandSenderExtension;
 import org.bukkit.command.CommandSender;
 
-import net.lopymine.patpat.plugin.PatPatPlugin;
 import net.lopymine.patpat.plugin.command.PatPatCommandManager;
 import net.lopymine.patpat.plugin.command.api.ICommand;
 import net.lopymine.patpat.plugin.config.PatPatConfig;
 import net.lopymine.patpat.plugin.config.option.ListMode;
+import net.lopymine.patpat.plugin.extension.CommandSenderExtension;
+import net.lopymine.patpat.plugin.util.StringUtils;
 
 import java.util.List;
 
@@ -45,7 +45,7 @@ public class ListSetCommand implements ICommand {
 
 	@Override
 	public String getPermissionKey() {
-		return PatPatPlugin.permission("list.set");
+		return StringUtils.permission("list.set");
 	}
 
 	@Override

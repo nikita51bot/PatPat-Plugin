@@ -1,14 +1,15 @@
 package net.lopymine.patpat.plugin.command.ratelimit.set;
 
 import lombok.experimental.ExtensionMethod;
-import net.lopymine.patpat.plugin.PatPatPlugin;
+import org.bukkit.command.CommandSender;
+
 import net.lopymine.patpat.plugin.command.api.ICommand;
 import net.lopymine.patpat.plugin.command.ratelimit.RateLimitManager;
 import net.lopymine.patpat.plugin.command.ratelimit.Time;
 import net.lopymine.patpat.plugin.config.PatPatConfig;
 import net.lopymine.patpat.plugin.config.RateLimitConfig;
 import net.lopymine.patpat.plugin.extension.CommandSenderExtension;
-import org.bukkit.command.CommandSender;
+import net.lopymine.patpat.plugin.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -50,7 +51,7 @@ public class IntervalCommand implements ICommand {
 
 	@Override
 	public String getPermissionKey() {
-		return PatPatPlugin.permission("ratelimit.set.interval");
+		return StringUtils.permission("ratelimit.set.interval");
 	}
 
 	@Override
