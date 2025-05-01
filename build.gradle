@@ -58,7 +58,9 @@ tasks.withType(JavaCompile).configureEach {
 
 processResources {
 	def props = [:]
-	props.put("version", prop("plugin_version"))
+	var buildTime = (int)(System.currentTimeMillis() / 10000) - 174611089
+	var buildCode = String.format("%07x", buildTime & 0xFFFFFFF)
+	props.put("version", "${prop("plugin_version")}+${buildCode}")
 
 	props.each { key, value ->
 		inputs.property key, value
@@ -75,6 +77,25 @@ tasks.register('reBuild', Delete) {
 	delete(project.rootProject.layout.buildDirectory.file("libs/${prop("plugin_name")}-${version}.jar"))
 	finalizedBy("build")
 }
+
+tasks.register('copyPluginJar', Copy) {
+	dependsOn jar
+	onlyIf { project.hasProperty('outputDir') }
+
+	from jar.archiveFile
+	into file(project.findProperty('outputDir') ?: 'undefined')
+
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+	doFirst {
+		def targetDir = file(project.outputDir)
+		if (!targetDir.exists()) {
+			targetDir.mkdirs()
+		}
+		println "Copy JAR in: ${targetDir.absolutePath}"
+	}
+}
+build.finalizedBy copyPluginJar
 
 runServer {
 	minecraftVersion(prop("minecraft_version").toString())
