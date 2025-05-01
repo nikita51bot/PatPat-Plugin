@@ -34,7 +34,6 @@ public final class PatPatPlugin extends JavaPlugin {
 
 
 		PatLogger.info("Plugin started");
-		PatLogger.info(getDescription().getVersion());
 	}
 
 	@Override
