@@ -6,6 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import net.lopymine.patpat.plugin.command.PatPatCommandManager;
 import net.lopymine.patpat.plugin.config.PatPatConfig;
 import net.lopymine.patpat.plugin.config.PlayerListConfig;
+import net.lopymine.patpat.plugin.config.migrate.MigrateManager;
 import net.lopymine.patpat.plugin.event.PatPatPlayerEventHandler;
 import net.lopymine.patpat.plugin.packet.PatPatPacketManager;
 
@@ -25,8 +26,10 @@ public final class PatPatPlugin extends JavaPlugin {
 		if (!this.getDataFolder().exists() && !this.getDataFolder().mkdirs()) {
 			PatLogger.warn("Failed to create data folder for PatPat Plugin!");
 		}
+		MigrateManager.migrate();
 		PatPatConfig.reload();
 		PlayerListConfig.reload();
+		MigrateManager.checkVersion();
 
 		PatPatPacketManager.register();
 		PatPatCommandManager.register();

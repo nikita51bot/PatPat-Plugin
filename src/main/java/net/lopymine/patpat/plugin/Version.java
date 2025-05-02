@@ -4,6 +4,8 @@ import org.jetbrains.annotations.NotNull;
 
 public record Version(int major, int minor, int patch) {
 
+	public static final Version SERVER_CONFIG_VERSION = Version.of("1.0.0");
+
 	public static final Version PACKET_V1_VERSION = Version.of("1.0.0");
 	public static final Version PACKET_V2_VERSION = Version.of("1.2.0");
 

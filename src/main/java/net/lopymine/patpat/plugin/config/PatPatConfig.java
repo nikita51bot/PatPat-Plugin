@@ -18,22 +18,27 @@ import java.nio.charset.StandardCharsets;
 @Setter
 public class PatPatConfig {
 
+	private static final String FILENAME = "config.json";
 	private static final Gson GSON = new GsonBuilder()
 			.setPrettyPrinting()
+			.disableHtmlEscaping()
 			.create();
 
 	@Getter
 	private static PatPatConfig instance;
 
-	@SerializedName("_comment")
-	private String comment;
+	@SerializedName("_info")
+	private InfoConfig info;
 	private boolean debug;
 
 	private ListMode listMode;
 	private RateLimitConfig rateLimit;
 
-	public PatPatConfig(ListMode listMode) {
-		this.listMode = listMode;
+	public PatPatConfig() {
+		this.listMode = ListMode.DISABLED;
+		this.rateLimit = new RateLimitConfig();
+		this.info = new InfoConfig();
+		this.debug = false;
 	}
 
 	public static void reload() {
@@ -51,11 +56,11 @@ public class PatPatConfig {
 	}
 
 	private static File getConfigPath() {
-		return new File(PatPatPlugin.getInstance().getDataFolder(), "config.json");
+		return new File(PatPatPlugin.getInstance().getDataFolder(), FILENAME);
 	}
 
 	public void save() {
-		this.comment = "Documentation: https://github.com/LopyMine/PatPat-Plugin/blob/main/doc/en/config.md"; // TODO: Set the comment in the field and serialize it, or switch to Jackson library
+		info.reset();
 		String json = GSON.toJson(this, PatPatConfig.class);
 		try (FileWriter writer = new FileWriter(getConfigPath())) {
 			writer.write(json);
@@ -65,11 +70,11 @@ public class PatPatConfig {
 	}
 
 	private static String loadConfigFromJar() {
-		try (InputStream inputStream = PatPatPlugin.getInstance().getClass().getClassLoader().getResourceAsStream("config.json")) {
+		try (InputStream inputStream = PatPatPlugin.getInstance().getClass().getClassLoader().getResourceAsStream(FILENAME)) {
 			assert (inputStream != null);
 			return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 		} catch (Exception e) {
-			PatLogger.error("Failed to open `config.json` in jar", e);
+			PatLogger.error("Failed to open `%s` in jar".formatted(FILENAME), e);
 		}
 		return null;
 	}
