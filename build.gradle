@@ -23,6 +23,10 @@ repositories {
 		name = "sonatype"
 		url = "https://oss.sonatype.org/content/groups/public/"
 	}
+	maven {
+		name = "papermc-repo"
+		url = "https://repo.papermc.io/repository/maven-public/"
+	}
 }
 
 dependencies {
@@ -35,30 +39,48 @@ dependencies {
 
 	// Jetbrains Annotations
 	implementation("org.jetbrains:annotations:${prop("jetbrains-annotations")}")
+
+	testImplementation('ch.qos.logback:logback-classic:1.5.18')
+	testImplementation(platform('org.junit:junit-bom:5.12.2'))
+	testImplementation('org.junit.jupiter:junit-jupiter')
+	testRuntimeOnly('org.junit.platform:junit-platform-launcher')
+	testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.0.0")
 }
 
-def targetJavaVersion = prop("java_version") as int
-def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+def mainJava = prop("java_version") as int
+def testJava = 21
 
+def mainJavaVersion = JavaVersion.toVersion(mainJava)
 java {
-	sourceCompatibility = javaVersion
-	targetCompatibility = javaVersion
-	if (JavaVersion.current() < javaVersion) {
-		toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+	sourceCompatibility = mainJavaVersion
+	targetCompatibility = mainJavaVersion
+	if (JavaVersion.current() < mainJavaVersion) {
+		toolchain.languageVersion = JavaLanguageVersion.of(mainJava)
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
+
+tasks.named('compileTestJava') {
+	javaCompiler = javaToolchains.compilerFor {
+		languageVersion = JavaLanguageVersion.of(testJava)
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = 'UTF-8'
-
-	if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-		options.release.set(targetJavaVersion)
+	if (it.name == 'compileJava') {
+		options.release = mainJava
+	} else if (it.name == 'compileTestJava') {
+		options.release = testJava
 	}
 }
 
 processResources {
 	def props = [:]
-	var buildTime = (int)(System.currentTimeMillis() / 10000) - 174611089
+	var buildTime = (int) (System.currentTimeMillis() / 10000) - 174611089
 	var buildCode = String.format("%07x", buildTime & 0xFFFFFFF)
 	props.put("version", "${prop("plugin_version")}+${buildCode}")
 

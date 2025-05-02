@@ -11,7 +11,7 @@ import net.lopymine.patpat.plugin.event.PatPatPlayerEventHandler;
 import net.lopymine.patpat.plugin.packet.PatPatPacketManager;
 
 @Getter
-public final class PatPatPlugin extends JavaPlugin {
+public class PatPatPlugin extends JavaPlugin {
 
 	public static final String MOD_ID = "patpat-plugin";
 
@@ -34,7 +34,6 @@ public final class PatPatPlugin extends JavaPlugin {
 		PatPatPacketManager.register();
 		PatPatCommandManager.register();
 		PatPatPlayerEventHandler.register();
-
 
 		PatLogger.info("Plugin started");
 	}
