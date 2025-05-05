@@ -1,4 +1,5 @@
 {
+	"patpat.command.list.add": "Игрок {0} добавлен в список ТЕСТ",
 	"patpat.command.list.add.already": "{0} уже в списке!",
 	"patpat.command.list.remove": "Игрок {0} удален из списка",
 	"patpat.command.list.remove.already": "{0} уже не в списке!",
