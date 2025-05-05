@@ -40,7 +40,7 @@ public class PatLogger {
 		if (!PatPatConfig.getInstance().isDebug()) {
 			return;
 		}
-		message = format(message, args);
+		message = "[DEBUG]: " + format(message, args);
 		LOGGER.info(message);
 	}
 

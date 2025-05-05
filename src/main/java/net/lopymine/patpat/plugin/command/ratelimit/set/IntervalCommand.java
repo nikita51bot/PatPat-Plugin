@@ -1,6 +1,8 @@
 package net.lopymine.patpat.plugin.command.ratelimit.set;
 
 import lombok.experimental.ExtensionMethod;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 
 import net.lopymine.patpat.plugin.command.api.ICommand;
@@ -27,7 +29,9 @@ public class IntervalCommand implements ICommand {
 		PatPatConfig config = PatPatConfig.getInstance();
 		RateLimitConfig rateLimitConfig = config.getRateLimit();
 		if (strings.length == 0) {
-			sender.sendPatPatMessage("Token Interval: " + rateLimitConfig.getTokenIncrementInterval());
+			sender.sendTranslatable("patpat.command.ratelimit.set.interval",
+					Component.text(rateLimitConfig.getTokenInterval().toString())
+							.color(NamedTextColor.GOLD));
 			return;
 		}
 		if (strings.length > 1) {
@@ -37,15 +41,21 @@ public class IntervalCommand implements ICommand {
 		try {
 			Time value = Time.of(strings[0]);
 			if (value.getValue() <= 0) {
-				sender.sendPatPatMessage("Time '%s' can't be less than 1", value);
+				sender.sendTranslatable("patpat.command.error.time.less_than",
+						Component.text(value.toString()).color(NamedTextColor.GOLD),
+						Component.text("1sec").color(NamedTextColor.GOLD)
+				);
 				return;
 			}
-			rateLimitConfig.setTokenIncrementInterval(value);
+			rateLimitConfig.setTokenInterval(value);
 			config.save();
 			RateLimitManager.reloadTask();
-			sender.sendPatPatMessage("Set token interval: " + value);
+			sender.sendTranslatable("patpat.command.ratelimit.set.interval.updated",
+					Component.text(value.toString()).color(NamedTextColor.GOLD));
 		} catch (IllegalArgumentException ignored) {
-			sender.sendPatPatMessage("'%s' is not time value (examples: 1sec, 5s, 5min...)", strings[0]);
+			sender.sendTranslatable("patpat.command.error.time.not_time",
+					Component.text(strings[0]).color(NamedTextColor.GOLD)
+			);
 		}
 	}
 
@@ -60,8 +70,8 @@ public class IntervalCommand implements ICommand {
 	}
 
 	@Override
-	public String getDescription() {
-		return "Set token interval";
+	public Component getDescription() {
+		return Component.translatable("patpat.command.ratelimit.set.interval.description");
 	}
 
 }

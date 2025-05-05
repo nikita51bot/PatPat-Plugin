@@ -1,12 +1,11 @@
 package net.lopymine.patpat.plugin.util;
 
+import lombok.experimental.UtilityClass;
+
 import static net.lopymine.patpat.plugin.PatPatPlugin.MOD_ID;
 
+@UtilityClass
 public class StringUtils {
-
-	private StringUtils() {
-		throw new IllegalStateException("Utility class");
-	}
 
 	public static String modId(String path) {
 		return "%s:%s".formatted(MOD_ID, path);

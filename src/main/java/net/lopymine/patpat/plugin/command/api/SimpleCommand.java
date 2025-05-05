@@ -1,9 +1,12 @@
 package net.lopymine.patpat.plugin.command.api;
 
+import lombok.experimental.ExtensionMethod;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
 import net.lopymine.patpat.plugin.command.PatPatCommandManager;
+import net.lopymine.patpat.plugin.extension.CommandSenderExtension;
 
 import java.util.*;
 import org.jetbrains.annotations.NotNull;
@@ -18,11 +21,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 
 @SuppressWarnings("unused")
+@ExtensionMethod(CommandSenderExtension.class)
 public final class SimpleCommand implements TabExecutor {
 
-	private final String description;
+	private final Component description;
 	private final String msgOnlyForPlayer;
-	private final String msgNoPermission;
+	private final Component msgNoPermission;
 	private final String usage;
 	private final String permission;
 	private final ICommand command;
@@ -30,10 +34,10 @@ public final class SimpleCommand implements TabExecutor {
 	private final boolean onlyForPlayer;
 
 	private SimpleCommand(@Nullable ICommand command,
-	                      @Nullable String description,
+	                      @Nullable Component description,
 	                      boolean onlyForPlayer,
 	                      @Nullable String msgOnlyForPlayer,
-	                      @Nullable String msgNoPermission,
+	                      @Nullable Component msgNoPermission,
 	                      @Nullable String usage,
 	                      @Nullable String permission,
 	                      @Nullable Map<String, SimpleCommand> child) {
@@ -59,7 +63,7 @@ public final class SimpleCommand implements TabExecutor {
 	public void printDescription(@NotNull CommandSender sender) {
 		if (permission == null || sender.hasPermission(permission)) {
 			if (description != null) {
-				sender.sendMessage(description);
+				sender.sendPatPatMessage(description);
 			}
 			child.values().forEach(simpleCommand -> simpleCommand.printDescription(sender));
 		}
@@ -93,7 +97,7 @@ public final class SimpleCommand implements TabExecutor {
 				return true;
 			}
 			if (msgNoPermission != null) {
-				sender.sendMessage(msgNoPermission);
+				sender.sendPatPatMessage(msgNoPermission);
 			}
 			return true;
 		} catch (Exception ignore) {
@@ -141,12 +145,11 @@ public final class SimpleCommand implements TabExecutor {
 	public static final class Builder {
 
 		@Nullable
-		private String description;
+		private Component description;
 		private boolean onlyForPlayer = false;
 		@Nullable
 		private String msgOnlyForPlayer;
-		@Nullable
-		private String msgNoPermission;
+		private @Nullable Component msgNoPermission;
 		@Nullable
 		private String usage;
 		@Nullable
@@ -165,7 +168,7 @@ public final class SimpleCommand implements TabExecutor {
 		 * @param description the command description
 		 * @return {@link Builder}
 		 */
-		public Builder description(@Nullable String description) {
+		public Builder description(@Nullable Component description) {
 			this.description = description;
 			return this;
 		}
@@ -197,7 +200,7 @@ public final class SimpleCommand implements TabExecutor {
 		 * @param msgNoPermission the message
 		 * @return {@link Builder}
 		 */
-		public Builder msgNoPermission(@Nullable String msgNoPermission) {
+		public Builder msgNoPermission(@Nullable Component msgNoPermission) {
 			this.msgNoPermission = msgNoPermission;
 			return this;
 		}

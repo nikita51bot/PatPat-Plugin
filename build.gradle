@@ -29,6 +29,10 @@ repositories {
 	}
 }
 
+configurations {
+	extraLibs
+}
+
 dependencies {
 	// Spigot API
 	compileOnly("org.spigotmc:spigot-api:${prop("spigot-api")}")
@@ -39,6 +43,10 @@ dependencies {
 
 	// Jetbrains Annotations
 	implementation("org.jetbrains:annotations:${prop("jetbrains-annotations")}")
+
+	// Adventure-API
+	implementation("net.kyori:adventure-platform-bukkit:4.3.4")
+	extraLibs("net.kyori:adventure-platform-bukkit:4.3.4")
 
 	testImplementation('ch.qos.logback:logback-classic:1.5.18')
 	testImplementation(platform('org.junit:junit-bom:5.12.2'))
@@ -56,6 +64,17 @@ java {
 	targetCompatibility = mainJavaVersion
 	if (JavaVersion.current() < mainJavaVersion) {
 		toolchain.languageVersion = JavaLanguageVersion.of(mainJava)
+	}
+}
+
+jar {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	from {
+		configurations.extraLibs.collect {
+			it.isDirectory() ? it : zipTree(it)
+		}
+	} {
+		exclude 'META-INF/**'
 	}
 }
 

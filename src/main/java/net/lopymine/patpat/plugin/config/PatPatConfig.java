@@ -13,6 +13,7 @@ import net.lopymine.patpat.plugin.config.option.ListMode;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Setter
@@ -69,6 +70,7 @@ public class PatPatConfig {
 		}
 	}
 
+	@Nullable
 	private static String loadConfigFromJar() {
 		try (InputStream inputStream = PatPatPlugin.getInstance().getClass().getClassLoader().getResourceAsStream(FILENAME)) {
 			assert (inputStream != null);

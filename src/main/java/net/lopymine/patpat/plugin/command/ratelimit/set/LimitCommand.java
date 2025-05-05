@@ -1,6 +1,8 @@
 package net.lopymine.patpat.plugin.command.ratelimit.set;
 
 import lombok.experimental.ExtensionMethod;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 
 import net.lopymine.patpat.plugin.command.api.ICommand;
@@ -25,7 +27,9 @@ public class LimitCommand implements ICommand {
 		PatPatConfig config = PatPatConfig.getInstance();
 		RateLimitConfig rateLimitConfig = config.getRateLimit();
 		if (strings.length == 0) {
-			sender.sendPatPatMessage("Token Limit: " + rateLimitConfig.getTokenLimit());
+			sender.sendTranslatable("patpat.command.ratelimit.set.limit",
+					Component.text(rateLimitConfig.getTokenLimit())
+							.color(NamedTextColor.GOLD));
 			return;
 		}
 		if (strings.length > 1) {
@@ -35,14 +39,22 @@ public class LimitCommand implements ICommand {
 		try {
 			int value = Integer.parseInt(strings[0]);
 			if (value <= 0) {
-				sender.sendPatPatMessage("Limit '%s' can't be less than 1", value);
+				sender.sendTranslatable(
+						"patpat.command.error.number.less_than",
+						Component.text(value).color(NamedTextColor.GOLD),
+						Component.text(1).color(NamedTextColor.GOLD)
+				);
 				return;
 			}
 			rateLimitConfig.setTokenLimit(value);
 			config.save();
-			sender.sendPatPatMessage("Set token limit: " + value);
+			sender.sendTranslatable("patpat.command.ratelimit.set.limit.updated",
+					Component.text(value).color(NamedTextColor.GOLD));
 		} catch (NumberFormatException ignored) {
-			sender.sendPatPatMessage("'%s' is not number", strings[0]);
+			sender.sendTranslatable(
+					"patpat.command.error.number.not_number",
+					Component.text(strings[0]).color(NamedTextColor.GOLD)
+			);
 		}
 	}
 
@@ -57,7 +69,7 @@ public class LimitCommand implements ICommand {
 	}
 
 	@Override
-	public String getDescription() {
-		return "Set token limit";
+	public Component getDescription() {
+		return Component.translatable("patpat.command.ratelimit.set.limit.description");
 	}
 }

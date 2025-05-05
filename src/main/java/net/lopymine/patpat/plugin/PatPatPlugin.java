@@ -1,6 +1,9 @@
 package net.lopymine.patpat.plugin;
 
 import lombok.Getter;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.translation.GlobalTranslator;
+import net.kyori.adventure.translation.Translator;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.lopymine.patpat.plugin.command.PatPatCommandManager;
@@ -18,11 +21,16 @@ public class PatPatPlugin extends JavaPlugin {
 	@Getter
 	private static PatPatPlugin instance;
 
+	@Getter
+	private static BukkitAudiences adventure;
+
+	private static Translator myTranslator;
+
 	@Override
 	@SuppressWarnings("java:S2696") // Plugins system
 	public void onEnable() {
-		instance = this;
-
+		instance  = this;
+		adventure = BukkitAudiences.create(this);
 		if (!this.getDataFolder().exists() && !this.getDataFolder().mkdirs()) {
 			PatLogger.warn("Failed to create data folder for PatPat Plugin!");
 		}
@@ -34,12 +42,23 @@ public class PatPatPlugin extends JavaPlugin {
 		PatPatPacketManager.register();
 		PatPatCommandManager.register();
 		PatPatPlayerEventHandler.register();
+		myTranslator = new PatTranslator();
+		GlobalTranslator.translator().addSource(myTranslator);
 
 		PatLogger.info("Plugin started");
 	}
 
 	@Override
+	@SuppressWarnings("java:S2696") // Plugins system
 	public void onDisable() {
-		// Plugin shutdown logic
+		if (adventure != null) {
+			adventure.close();
+			adventure = null;
+		}
+		if (myTranslator != null) {
+			GlobalTranslator.translator().removeSource(myTranslator);
+			myTranslator = null;
+		}
+
 	}
 }

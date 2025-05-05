@@ -10,7 +10,7 @@
 		"enabled": false,
 		"tokenLimit": 20,
 		"tokenIncrement":  1,
-		"tokenIncrementInterval": "1sec",
+		"tokenInterval": "1sec",
 		"permissionBypass":  "patpat.ratelimit.bypass"
 	}
 }

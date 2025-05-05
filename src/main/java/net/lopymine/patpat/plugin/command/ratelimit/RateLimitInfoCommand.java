@@ -1,6 +1,11 @@
 package net.lopymine.patpat.plugin.command.ratelimit;
 
 import lombok.experimental.ExtensionMethod;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.ClickEvent.Action;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -16,6 +21,9 @@ import java.util.List;
 
 @ExtensionMethod(CommandSenderExtension.class)
 public class RateLimitInfoCommand implements ICommand {
+
+	private static final Component DISABLED = Component.translatable("patpat.command.ratelimit.disabled").color(NamedTextColor.RED);
+	private static final Component ENABLED = Component.translatable("patpat.command.ratelimit.enabled").color(NamedTextColor.GREEN);
 
 	@Override
 	public List<String> getSuggestions(CommandSender sender, String[] strings) {
@@ -34,25 +42,42 @@ public class RateLimitInfoCommand implements ICommand {
 		if (strings.length > 0) {
 			Player player = Bukkit.getPlayer(strings[0]);
 			if (player == null) {
-				sender.sendPatPatMessage("Player '%s' is not exist", strings[0]);
+				sender.sendTranslatable(
+						"patpat.command.error.player.not_exist",
+						Component.text(strings[0]).color(NamedTextColor.GOLD)
+				);
 				return;
 			}
-			sender.sendPatPatMessage("Info '%s'", strings[0]);
+			sender.sendTranslatable(
+					"patpat.command.ratelimit.info.player",
+					Component.text(strings[0]).color(NamedTextColor.GOLD)
+			);
 
-			int availablePats = RateLimitManager.getAvailablePats(player.getUniqueId());
-			String message = "Tokens: %d";
+			Component tokensComponent;
 			if (player.hasPermission(config.getPermissionBypass())) {
-				message = "Tokens: bypass";
+				tokensComponent = Component.translatable("patpat.command.ratelimit.info.tokens.bypass");
+			} else {
+				tokensComponent = Component.text(RateLimitManager.getAvailablePats(player.getUniqueId()));
 			}
-			sender.sendPatPatMessage(message, availablePats);
+			tokensComponent = tokensComponent.color(NamedTextColor.GOLD);
+			sender.sendTranslatable("patpat.command.ratelimit.info.tokens", tokensComponent);
 			return;
 		}
 
-		sender.sendPatPatMessage("Enabled: " + config.isEnabled());
-		sender.sendPatPatMessage("Token limit: " + config.getTokenLimit());
-		sender.sendPatPatMessage("Token increment: " + config.getTokenIncrement());
-		sender.sendPatPatMessage("Token increment interval: " + config.getTokenIncrementInterval().toString());
-		sender.sendPatPatMessage("Permission bypass: " + config.getPermissionBypass());
+		Component statusComponent = config.isEnabled() ? ENABLED : DISABLED;
+		Component limitComponent = Component.text(config.getTokenLimit()).color(NamedTextColor.GOLD);
+		Component incrementComponent = Component.text(config.getTokenIncrement()).color(NamedTextColor.GOLD);
+		Component intervalComponent = Component.text(config.getTokenInterval().toString()).color(NamedTextColor.GOLD);
+		Component permissionComponent = Component.text(config.getPermissionBypass())
+				.color(NamedTextColor.GOLD)
+				.clickEvent(ClickEvent.clickEvent(Action.COPY_TO_CLIPBOARD, config.getPermissionBypass()))
+				.hoverEvent(HoverEvent.showText(Component.translatable("patpat.command.ratelimit.info.permission_bypass.copy")));
+
+		sender.sendTranslatable("patpat.command.ratelimit.info.status", statusComponent);
+		sender.sendTranslatable("patpat.command.ratelimit.set.limit", limitComponent);
+		sender.sendTranslatable("patpat.command.ratelimit.set.increment", incrementComponent);
+		sender.sendTranslatable("patpat.command.ratelimit.set.interval", intervalComponent);
+		sender.sendTranslatable("patpat.command.ratelimit.info.permission_bypass", permissionComponent);
 	}
 
 	@Override
@@ -66,7 +91,7 @@ public class RateLimitInfoCommand implements ICommand {
 	}
 
 	@Override
-	public String getDescription() {
-		return "Get info about ratelimit params";
+	public Component getDescription() {
+		return Component.translatable("patpat.command.ratelimit.info.description");
 	}
 }

@@ -61,7 +61,7 @@ public class RateLimitManager {
 		if (!config.isEnabled()) {
 			return;
 		}
-		Time configInterval = config.getTokenIncrementInterval();
+		Time configInterval = config.getTokenInterval();
 		long period = configInterval.getValue() * configInterval.getUnit().getMultiplier() * 20L;
 		task = Bukkit.getScheduler().runTaskTimerAsynchronously(
 				PatPatPlugin.getInstance(),

@@ -1,5 +1,7 @@
 package net.lopymine.patpat.plugin.command;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 
@@ -15,6 +17,8 @@ import net.lopymine.patpat.plugin.util.StringUtils;
 import java.util.Objects;
 
 public class PatPatCommandManager {
+
+	private static final Component NO_PERMISSION_MESSAGE = Component.translatable("patpat.command.no_permission").color(NamedTextColor.RED);
 
 	private PatPatCommandManager() {
 		throw new IllegalStateException("Manager class");
@@ -85,7 +89,7 @@ public class PatPatCommandManager {
 		return SimpleCommand.builder()
 				.permission(command.getPermissionKey())
 				.usage(command.getExampleOfUsage())
-				.msgNoPermission(PatPatCommandManager.getNoPermissionMessage())
+				.msgNoPermission(NO_PERMISSION_MESSAGE)
 				.description(command.getDescription())
 				.executor(command)
 				.build();
@@ -95,7 +99,7 @@ public class PatPatCommandManager {
 		SimpleCommand.Builder simpleCommandBuilder = SimpleCommand.builder()
 				.permission(command.getPermissionKey())
 				.usage(command.getExampleOfUsage())
-				.msgNoPermission(PatPatCommandManager.getNoPermissionMessage())
+				.msgNoPermission(NO_PERMISSION_MESSAGE)
 				.description(command.getDescription())
 				.executor(command);
 
@@ -107,10 +111,6 @@ public class PatPatCommandManager {
 
 	public static void sendMessage(CommandSender sender, String message, Object... args) {
 		sender.sendMessage(getPluginMessage(message.formatted(args)));
-	}
-
-	public static String getNoPermissionMessage() {
-		return getPluginMessage("You don't have permissions to execute this command!");
 	}
 
 	public static String getWrongMessage(String valueWhichIsWrong) {

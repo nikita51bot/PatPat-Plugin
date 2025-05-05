@@ -1,73 +1,94 @@
 package net.lopymine.patpat.plugin.command.list;
 
 import lombok.experimental.ExtensionMethod;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.ClickEvent.Action;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
-import net.lopymine.patpat.plugin.command.PatPatCommandManager;
 import net.lopymine.patpat.plugin.command.api.ICommand;
 import net.lopymine.patpat.plugin.config.PlayerListConfig;
 import net.lopymine.patpat.plugin.extension.CommandSenderExtension;
 import net.lopymine.patpat.plugin.util.StringUtils;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 @ExtensionMethod(CommandSenderExtension.class)
 public class ListRemoveCommand implements ICommand {
 
 	@Override
 	public List<String> getSuggestions(CommandSender commandSender, String[] strings) {
-		if (strings.length == 1) {
-			return Bukkit.getOnlinePlayers().stream()
-					.map(Player::getName)
-					.filter(name -> name.startsWith(strings[0]))
-					.toList();
+		if (strings.length != 1) {
+			return Collections.emptyList();
 		}
-		return Collections.emptyList();
+
+		String prefix = strings[0].toLowerCase();
+		return PlayerListConfig.getInstance().getNicknameByUuid().entrySet().stream()
+				.flatMap(entry -> Stream.of(
+						entry.getKey().toString(),
+						entry.getValue()
+				))
+				.filter(s -> !s.equals("?"))
+				.filter(s -> s.toLowerCase().startsWith(prefix))
+				.toList();
 	}
 
 	@Override
 	public void execute(CommandSender sender, String[] strings) { // TODO: rewrite method for servers, with `online-mode: false`
 		if (strings.length == 0) {
-			sender.sendPatPatMessage(PatPatCommandManager.getWrongMessage("command"));
 			sender.sendPatPatMessage(this.getExampleOfUsage());
 			return;
 		}
 
 		String value = strings[0];
-		OfflinePlayer offlinePlayer = null;
 		try {
 			UUID uuid = UUID.fromString(value);
-			offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+			removeUuid(sender, uuid);
 		} catch (IllegalArgumentException ignored) {
-			// input is not uuid type
+			removeName(sender, value);
 		}
-		for (OfflinePlayer player : Bukkit.getOfflinePlayers()) {
-			if (value.equals(player.getName())) {
-				offlinePlayer = player;
-				break;
-			}
+	}
+
+	private void removeUuid(CommandSender sender, UUID uuid) {
+		OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+		String nickname = offlinePlayer.getName();
+		if (nickname == null) {
+			PlayerListConfig config = PlayerListConfig.getInstance();
+			nickname = config.getNicknameByUuid().getOrDefault(uuid, "?");
 		}
 
-		if (offlinePlayer == null) {
-			sender.sendPatPatMessage("Failed to find player with \"%s\" uuid or nickname", value);
-			return;
-		}
-
+		TextComponent nicknameComponent = Component
+				.text(nickname)
+				.color(NamedTextColor.GOLD)
+				.hoverEvent(HoverEvent.showText(Component.text(uuid.toString())))
+				.clickEvent(ClickEvent.clickEvent(Action.COPY_TO_CLIPBOARD, uuid.toString()));
 		PlayerListConfig config = PlayerListConfig.getInstance();
-		Set<UUID> uuids = config.getUuids();
-		String name = offlinePlayer.getName();
-		if (name == null) {
-			name = "null";
-		}
-		if (uuids.remove(offlinePlayer.getUniqueId())) {
-			sender.sendPatPatMessage("Player §6%s§r has been removed to list", name);
+		if (config.remove(offlinePlayer.getUniqueId())) {
+			sender.sendTranslatable("patpat.command.list.remove", nicknameComponent);
+			config.save();
 		} else {
-			sender.sendPatPatMessage("Player §6%s§r was not found in list", name);
+			sender.sendTranslatable("patpat.command.list.remove.already", nicknameComponent);
 		}
-		config.save();
+	}
+
+	private void removeName(CommandSender sender, String nickname) {
+		PlayerListConfig config = PlayerListConfig.getInstance();
+
+		TextComponent nicknameComponent = Component
+				.text(nickname)
+				.color(NamedTextColor.GOLD);
+		if (config.remove(nickname)) {
+			sender.sendTranslatable("patpat.command.list.remove", nicknameComponent);
+			config.save();
+		} else {
+			sender.sendTranslatable("patpat.command.list.remove.already", nicknameComponent);
+		}
 	}
 
 	@Override
@@ -81,7 +102,7 @@ public class ListRemoveCommand implements ICommand {
 	}
 
 	@Override
-	public String getDescription() {
-		return "Removes player from the permission list";
+	public Component getDescription() {
+		return Component.translatable("patpat.command.list.remove.description");
 	}
 }

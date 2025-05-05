@@ -1,6 +1,8 @@
 package net.lopymine.patpat.plugin.command.ratelimit.set;
 
 import lombok.experimental.ExtensionMethod;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 
 import net.lopymine.patpat.plugin.command.api.ICommand;
@@ -25,7 +27,9 @@ public class IncrementCommand implements ICommand {
 		PatPatConfig config = PatPatConfig.getInstance();
 		RateLimitConfig rateLimitConfig = config.getRateLimit();
 		if (strings.length == 0) {
-			sender.sendPatPatMessage("Token Increment: " + rateLimitConfig.getTokenIncrement());
+			sender.sendTranslatable("patpat.command.ratelimit.set.increment",
+					Component.text(rateLimitConfig.getTokenIncrement())
+							.color(NamedTextColor.GOLD));
 			return;
 		}
 		if (strings.length > 1) {
@@ -35,14 +39,25 @@ public class IncrementCommand implements ICommand {
 		try {
 			int value = Integer.parseInt(strings[0]);
 			if (value <= 0) {
-				sender.sendPatPatMessage("Increment '%s' can't be less than 1", value);
+				sender.sendTranslatable(
+						"patpat.command.error.number.less_than",
+						Component.text(value).color(NamedTextColor.GOLD),
+						Component.text(1).color(NamedTextColor.GOLD)
+				);
 				return;
 			}
 			rateLimitConfig.setTokenIncrement(value);
 			config.save();
-			sender.sendPatPatMessage("Set token increment: " + value);
+
+			sender.sendTranslatable(
+					"patpat.command.ratelimit.set.increment.updated",
+					Component.text(value).color(NamedTextColor.GOLD)
+			);
 		} catch (NumberFormatException ignored) {
-			sender.sendPatPatMessage("'%s' is not number", strings[0]);
+			sender.sendTranslatable(
+					"patpat.command.error.number.not_number",
+					Component.text(strings[0]).color(NamedTextColor.GOLD)
+			);
 		}
 	}
 
@@ -57,8 +72,8 @@ public class IncrementCommand implements ICommand {
 	}
 
 	@Override
-	public String getDescription() {
-		return "Set token increment";
+	public Component getDescription() {
+		return Component.translatable("patpat.command.ratelimit.set.increment.description");
 	}
 
 }

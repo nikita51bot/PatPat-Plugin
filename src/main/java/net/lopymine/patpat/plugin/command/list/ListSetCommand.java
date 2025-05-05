@@ -1,6 +1,9 @@
 package net.lopymine.patpat.plugin.command.list;
 
 import lombok.experimental.ExtensionMethod;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 
 import net.lopymine.patpat.plugin.command.PatPatCommandManager;
@@ -10,6 +13,7 @@ import net.lopymine.patpat.plugin.config.option.ListMode;
 import net.lopymine.patpat.plugin.extension.CommandSenderExtension;
 import net.lopymine.patpat.plugin.util.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 @ExtensionMethod(CommandSenderExtension.class)
@@ -19,13 +23,19 @@ public class ListSetCommand implements ICommand {
 
 	@Override
 	public List<String> getSuggestions(CommandSender sender, String[] strings) {
-		return LIST_MODES;
+		if (strings.length != 1) {
+			return Collections.emptyList();
+		}
+		String query = strings[0].toLowerCase();
+		return LIST_MODES
+				.stream()
+				.filter(mode -> mode.toLowerCase().startsWith(query))
+				.toList();
 	}
 
 	@Override
 	public void execute(CommandSender sender, String[] strings) {
 		if (strings.length == 0) {
-			sender.sendPatPatMessage(PatPatCommandManager.getWrongMessage("command"));
 			sender.sendPatPatMessage(this.getExampleOfUsage());
 			return;
 		}
@@ -34,9 +44,19 @@ public class ListSetCommand implements ICommand {
 		try {
 			ListMode listMode = ListMode.valueOf(value.toUpperCase());
 			PatPatConfig config = PatPatConfig.getInstance();
+			if (config.getListMode().equals(listMode)) {
+				TextComponent listComponent = Component
+						.text(listMode.name())
+						.color(NamedTextColor.GOLD);
+				sender.sendTranslatable("patpat.command.list.set.already", listComponent);
+				return;
+			}
 			config.setListMode(listMode);
 			config.save();
-			sender.sendPatPatMessage("List mode has been changed to §6%s§r", listMode.name());
+			TextComponent listComponent = Component
+					.text(listMode.name())
+					.color(NamedTextColor.GOLD);
+			sender.sendTranslatable("patpat.command.list.set", listComponent);
 		} catch (IllegalArgumentException e) {
 			sender.sendPatPatMessage(PatPatCommandManager.getWrongMessage("list mode"));
 			sender.sendPatPatMessage(this.getExampleOfUsage());
@@ -54,7 +74,7 @@ public class ListSetCommand implements ICommand {
 	}
 
 	@Override
-	public String getDescription() {
-		return "Sets mode of the permission list";
+	public Component getDescription() {
+		return Component.translatable("patpat.command.list.set.description");
 	}
 }

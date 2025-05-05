@@ -15,7 +15,7 @@ public class RateLimitConfig {
 	private int tokenLimit;
 	private int tokenIncrement;
 	@JsonAdapter(TimeAdapter.class)
-	private Time tokenIncrementInterval;
+	private Time tokenInterval;
 	private String permissionBypass;
 
 }

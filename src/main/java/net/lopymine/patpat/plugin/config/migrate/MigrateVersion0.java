@@ -41,7 +41,7 @@ public class MigrateVersion0 implements MigrateHandler {
 			JsonArray array = rootObj.get("uuids").getAsJsonArray();
 			for (JsonElement element : array) {
 				String uuid = element.getAsString();
-				playerListConfig.getUuids().add(UUID.fromString(uuid));
+				playerListConfig.add(UUID.fromString(uuid), "?");
 			}
 		} catch (FileNotFoundException e) {
 			PatLogger.warn("Failed to read file " + oldPlayerList.getName(), e);

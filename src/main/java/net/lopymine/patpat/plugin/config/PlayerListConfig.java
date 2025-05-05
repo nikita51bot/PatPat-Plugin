@@ -20,10 +20,31 @@ public class PlayerListConfig {
 	private static final String FILENAME = "player-list.txt";
 	private static final File CONFIG_FILE = new File(PatPatPlugin.getInstance().getDataFolder(), FILENAME);
 
-	private final Set<UUID> uuids;
+	private final Map<UUID, String> nicknameByUuid = new HashMap<>();
 
-	public PlayerListConfig() {
-		this.uuids = new HashSet<>();
+	public boolean add(UUID uuid, String nickname) {
+		return !Objects.equals(nicknameByUuid.put(uuid, nickname), nickname);
+	}
+
+	public boolean remove(UUID uuid) {
+		return nicknameByUuid.remove(uuid) != null;
+	}
+
+	public boolean remove(String nickname) {
+		boolean success = false;
+		while (nicknameByUuid.containsValue(nickname)) {
+			success = true;
+			nicknameByUuid.values().remove(nickname);
+		}
+		return success;
+	}
+
+	public Set<UUID> getUuids() {
+		return nicknameByUuid.keySet();
+	}
+
+	public Collection<String> getNicknames() {
+		return nicknameByUuid.values();
 	}
 
 	private static boolean create() {
@@ -50,7 +71,8 @@ public class PlayerListConfig {
 			line = reader.readLine();
 			while (line != null) {
 				lineNumber++;
-				config.uuids.add(UUID.fromString(line));
+				String[] uuidNicknamePair = line.split(" ");
+				config.nicknameByUuid.put(UUID.fromString(uuidNicknamePair[0]), uuidNicknamePair[1]);
 				line = reader.readLine();
 			}
 			instance = config;
@@ -63,7 +85,12 @@ public class PlayerListConfig {
 
 	public void save() {
 		try (FileWriter writer = new FileWriter(CONFIG_FILE, StandardCharsets.UTF_8)) {
-			writer.write(uuids.stream().map(UUID::toString).collect(Collectors.joining("\n")));
+			writer.write(nicknameByUuid
+					.entrySet()
+					.stream()
+					.map(entry -> "%s %s".formatted(entry.getKey(), entry.getValue()))
+					.collect(Collectors.joining("\n"))
+			);
 		} catch (Exception e) {
 			PatLogger.error("Failed to save " + FILENAME, e);
 		}

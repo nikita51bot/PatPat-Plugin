@@ -1,73 +1,96 @@
 package net.lopymine.patpat.plugin.command.list;
 
 import lombok.experimental.ExtensionMethod;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.ClickEvent.Action;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
-import net.lopymine.patpat.plugin.command.PatPatCommandManager;
 import net.lopymine.patpat.plugin.command.api.ICommand;
 import net.lopymine.patpat.plugin.config.PlayerListConfig;
 import net.lopymine.patpat.plugin.extension.CommandSenderExtension;
 import net.lopymine.patpat.plugin.util.StringUtils;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 @ExtensionMethod(CommandSenderExtension.class)
 public class ListAddCommand implements ICommand {
 
 	@Override
 	public List<String> getSuggestions(CommandSender sender, String[] strings) {
-		if (strings.length == 1) {
-			return Bukkit.getOnlinePlayers().stream()
-					.map(Player::getName)
-					.filter(name -> name.startsWith(strings[0]))
-					.toList();
+		if (strings.length != 1) {
+			return Collections.emptyList();
 		}
-		return Collections.emptyList();
+
+		String prefix = strings[0].toLowerCase();
+		return Bukkit.getOnlinePlayers().stream()
+				.flatMap(player -> Stream.of(
+						player.getName(),
+						player.getUniqueId().toString()
+				))
+				.filter(s -> s.toLowerCase().startsWith(prefix))
+				.toList();
 	}
 
 	@Override
 	public void execute(CommandSender sender, String[] strings) { // TODO: rewrite method for servers, with `online-mode: false`, problem with uuid
 		if (strings.length == 0) {
-			sender.sendPatPatMessage(PatPatCommandManager.getWrongMessage("command"));
 			sender.sendPatPatMessage(this.getExampleOfUsage());
 		}
 
 		String value = strings[0];
-		OfflinePlayer offlinePlayer = null;
 		try {
 			UUID uuid = UUID.fromString(value);
-			offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+			addUuid(sender, uuid);
 		} catch (IllegalArgumentException ignored) {
-			// input is not uuid type
+			addName(sender, value);
 		}
+	}
 
+	private void addUuid(CommandSender sender, UUID uuid) {
+		OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+		String nickname = offlinePlayer.getName();
+		if (nickname == null) {
+			nickname = "?";
+		}
+		addPlayer(sender, uuid, nickname);
+	}
+
+	private void addName(CommandSender sender, String nickname) {
+		OfflinePlayer offlinePlayer = null;
 		for (OfflinePlayer player : Bukkit.getOfflinePlayers()) {
-			if (value.equals(player.getName())) {
+			if (nickname.equals(player.getName())) {
 				offlinePlayer = player;
 				break;
 			}
 		}
 
 		if (offlinePlayer == null) {
-			sender.sendPatPatMessage("Failed to find player with \"§6%s§r\" uuid or nickname", value);
+			sender.sendPatPatMessage("Failed to find player with \"§6%s§r\" uuid or nickname", nickname);
 			return;
 		}
+		addPlayer(sender, offlinePlayer.getUniqueId(), nickname);
+	}
 
+	private void addPlayer(CommandSender sender, UUID uuid, String nickname) {
 		PlayerListConfig config = PlayerListConfig.getInstance();
-		Set<UUID> uuids = config.getUuids();
-		String name = offlinePlayer.getName();
-		if (name == null) {
-			name = "null";
-		}
-		if (uuids.add(offlinePlayer.getUniqueId())) {
-			sender.sendPatPatMessage("Player §6%s§r has been added to list", name);
+		TextComponent nicknameComponent = Component
+				.text(nickname)
+				.color(NamedTextColor.GOLD)
+				.hoverEvent(HoverEvent.showText(Component.text(uuid.toString())))
+				.clickEvent(ClickEvent.clickEvent(Action.COPY_TO_CLIPBOARD, uuid.toString()));
+		if (config.add(uuid, nickname)) {
+			sender.sendTranslatable("patpat.command.list.add", nicknameComponent);
+			config.save();
 		} else {
-			sender.sendPatPatMessage("Player §6%s§r already added to list!", name);
+			sender.sendTranslatable("patpat.command.list.add.already", nicknameComponent);
 		}
-		config.save();
 	}
 
 	@Override
@@ -81,7 +104,7 @@ public class ListAddCommand implements ICommand {
 	}
 
 	@Override
-	public String getDescription() {
-		return "Adds player to the permission list";
+	public Component getDescription() {
+		return Component.translatable("patpat.command.list.add.description");
 	}
 }

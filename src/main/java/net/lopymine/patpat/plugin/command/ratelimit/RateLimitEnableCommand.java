@@ -1,6 +1,8 @@
 package net.lopymine.patpat.plugin.command.ratelimit;
 
 import lombok.experimental.ExtensionMethod;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 
 import net.lopymine.patpat.plugin.command.api.ICommand;
@@ -15,6 +17,8 @@ import java.util.List;
 @ExtensionMethod(CommandSenderExtension.class)
 public class RateLimitEnableCommand implements ICommand {
 
+	private static final Component ENABLED = Component.translatable("patpat.command.ratelimit.enabled").color(NamedTextColor.GREEN);
+
 	@Override
 	public List<String> getSuggestions(CommandSender sender, String[] strings) {
 		return Collections.emptyList();
@@ -25,13 +29,13 @@ public class RateLimitEnableCommand implements ICommand {
 		PatPatConfig config = PatPatConfig.getInstance();
 		RateLimitConfig rateLimitConfig = config.getRateLimit();
 		if (rateLimitConfig.isEnabled()) {
-			sender.sendPatPatMessage("RateLimit is already enabled");
+			sender.sendTranslatable("patpat.command.ratelimit.toggle.already", ENABLED);
 			return;
 		}
 		rateLimitConfig.setEnabled(true);
 		config.save();
 		RateLimitManager.reloadTask();
-		sender.sendPatPatMessage("RateLimit enabled");
+		sender.sendTranslatable("patpat.command.ratelimit.toggle", ENABLED);
 	}
 
 	@Override
@@ -46,7 +50,7 @@ public class RateLimitEnableCommand implements ICommand {
 
 
 	@Override
-	public String getDescription() {
-		return "Enabling ratelimit";
+	public Component getDescription() {
+		return Component.translatable("patpat.command.ratelimit.enable.description");
 	}
 }

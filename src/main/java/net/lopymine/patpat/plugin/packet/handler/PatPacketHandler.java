@@ -22,7 +22,7 @@ public class PatPacketHandler implements IPacketHandler {
 	@Override
 	public void handle(Player sender, ByteArrayDataInput buf) {
 		PatPatPlugin plugin = PatPatPlugin.getInstance();
-		if (!this.canHandle(sender, plugin)) {
+		if (!this.canHandle(sender)) {
 			PatLogger.debug("Can handle");
 			return;
 		}
@@ -78,7 +78,7 @@ public class PatPacketHandler implements IPacketHandler {
 		return plugin.getServer().getEntity(buf.readUuid());
 	}
 
-	private boolean canHandle(Player sender, PatPatPlugin plugin) {
+	private boolean canHandle(Player sender) {
 		if (!sender.hasPermission(PatPatConfig.getInstance().getRateLimit().getPermissionBypass()) && !RateLimitManager.canPat(sender.getUniqueId())) {
 			return false;
 		}

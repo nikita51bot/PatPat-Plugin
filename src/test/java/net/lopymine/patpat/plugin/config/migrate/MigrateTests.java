@@ -14,16 +14,14 @@ import java.util.UUID;
 class MigrateTests {
 
 	@BeforeAll
-	static void setUp()
-	{
+	static void setUp() {
 		MockBukkit.mock();
 		MockBukkit.load(PatPatPlugin.class);
 		PatPatConfig.getInstance().setDebug(true);
 	}
 
 	@AfterAll
-	static void tearDown()
-	{
+	static void tearDown() {
 		MockBukkit.unmock();
 	}
 
