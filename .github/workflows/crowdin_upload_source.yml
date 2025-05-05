@@ -3,9 +3,10 @@ name: Crowdin Upload Source
 on:
   workflow_dispatch:
   push:
-    paths:
+    branches: 
+      - dev
+    paths: 
       - 'src/main/resources/lang/en-US.json'
-    branches: [ dev ]
 
 jobs:
   synchronize-with-crowdin:
