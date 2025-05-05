@@ -36,10 +36,10 @@ public class PatPatConfig {
 	private RateLimitConfig rateLimit;
 
 	public PatPatConfig() {
-		this.listMode = ListMode.DISABLED;
+		this.listMode  = ListMode.DISABLED;
 		this.rateLimit = new RateLimitConfig();
-		this.info = new InfoConfig();
-		this.debug = false;
+		this.info      = new InfoConfig();
+		this.debug     = false;
 	}
 
 	public static void reload() {

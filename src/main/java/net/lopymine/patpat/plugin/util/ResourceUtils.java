@@ -34,7 +34,7 @@ public class ResourceUtils {
 	}
 
 	@Nullable
-	public static Map<String, String> loadLangFromJar(String filename){
+	public static Map<String, String> loadLangFromJar(String filename) {
 		try (InputStream inputStream = PatPatPlugin.getInstance().getClass().getClassLoader().getResourceAsStream(filename)) {
 			assert (inputStream != null);
 			return GSON.fromJson(new InputStreamReader(inputStream), MAP_TYPE);

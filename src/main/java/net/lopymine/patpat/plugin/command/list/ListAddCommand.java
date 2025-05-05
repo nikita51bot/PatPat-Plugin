@@ -100,7 +100,7 @@ public class ListAddCommand implements ICommand {
 
 	@Override
 	public String getExampleOfUsage() {
-		return "/patpat list add [<UUID> | <NICKNAME>]";
+		return "/patpat list add (<UUID> | <NICKNAME>)";
 	}
 
 	@Override

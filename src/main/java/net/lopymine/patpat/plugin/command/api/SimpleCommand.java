@@ -109,7 +109,6 @@ public final class SimpleCommand implements TabExecutor {
 		if (command != null) {
 			command.execute(sender, args);
 		} else if (usage != null) {
-			PatPatCommandManager.sendMessage(sender, PatPatCommandManager.getWrongMessage("command"));
 			PatPatCommandManager.sendMessage(sender, usage);
 		}
 	}

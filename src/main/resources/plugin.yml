@@ -5,4 +5,4 @@ api-version: '1.16'
 commands:
   patpat:
     description: "Command to configure and control the PatPat Plugin"
-    usage: "/patpat"
+    usage: "/patpat (info | list | ratelimit | reload)"

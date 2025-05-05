@@ -30,11 +30,12 @@ public class ListRemoveCommand implements ICommand {
 
 		String prefix = strings[0].toLowerCase();
 		return PlayerListConfig.getInstance().getNicknameByUuid().entrySet().stream()
-				.flatMap(entry -> Stream.of(
-						entry.getKey().toString(),
-						entry.getValue()
-				))
-				.filter(s -> !s.equals("?"))
+				.map(entry -> {
+					if(!Objects.equals(entry.getValue(), "?")){
+						return entry.getValue();
+					}
+					return entry.getKey().toString();
+				})
 				.filter(s -> s.toLowerCase().startsWith(prefix))
 				.toList();
 	}

@@ -6,7 +6,6 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 
-import net.lopymine.patpat.plugin.command.PatPatCommandManager;
 import net.lopymine.patpat.plugin.command.api.ICommand;
 import net.lopymine.patpat.plugin.config.PatPatConfig;
 import net.lopymine.patpat.plugin.config.option.ListMode;
@@ -40,9 +39,9 @@ public class ListSetCommand implements ICommand {
 			return;
 		}
 
-		String value = strings[0];
+		String value = strings[0].toUpperCase();
 		try {
-			ListMode listMode = ListMode.valueOf(value.toUpperCase());
+			ListMode listMode = ListMode.valueOf(value);
 			PatPatConfig config = PatPatConfig.getInstance();
 			if (config.getListMode().equals(listMode)) {
 				TextComponent listComponent = Component
@@ -58,8 +57,7 @@ public class ListSetCommand implements ICommand {
 					.color(NamedTextColor.GOLD);
 			sender.sendTranslatable("patpat.command.list.set", listComponent);
 		} catch (IllegalArgumentException e) {
-			sender.sendPatPatMessage(PatPatCommandManager.getWrongMessage("list mode"));
-			sender.sendPatPatMessage(this.getExampleOfUsage());
+			sender.sendTranslatable("patpat.command.list.set.error", Component.text(value).color(NamedTextColor.GOLD));
 		}
 	}
 
